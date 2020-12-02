@@ -4,7 +4,7 @@ bl_info = {
     "name": "Open OS Browser",
     "description": "open OS browser from blender browser",
     "author": "1C0D",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (2, 90, 0),
     "location": "Browser>context_menu",
     "category": "Development",
@@ -27,11 +27,27 @@ def draw(self, context):
     layout.operator("open.os_browser",
                          text="Open OS Broswer", icon='FILEBROWSER')
 
+addon_keymaps = []
+
 def register():
     bpy.utils.register_class(OPEN_OT_os_browser)
     bpy.types.FILEBROWSER_MT_context_menu.append(draw)
+    
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc is not None:
+        km = kc.keymaps.new(name='File Browser', space_type='FILE_BROWSER')
+        kmi = km.keymap_items.new(
+            "open.os_browser", "O", "PRESS", ctrl=True)
+
 
 def unregister():
+    
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc is not None:
+        for km, kmi in addon_keymaps:
+            km.keymap_items.remove(kmi)    
     bpy.utils.unregister_class(OPEN_OT_os_browser)
     bpy.types.FILEBROWSER_MT_context_menu.remove(draw)
 
