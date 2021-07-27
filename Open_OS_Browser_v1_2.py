@@ -1,10 +1,12 @@
 import bpy
+import os
+import subprocess
 
 bl_info = {
     "name": "Open OS Browser",
     "description": "open OS browser from blender browser",
     "author": "1C0D",
-    "version": (1, 1, 0),
+    "version": (1, 2, 0),
     "blender": (2, 90, 0),
     "location": "Browser>context_menu",
     "category": "Development",
@@ -15,8 +17,15 @@ class OPEN_OT_os_browser(bpy.types.Operator):
     bl_label = "Open OS browser"
 
     def execute(self, context):
-        filepath=context.space_data.params.directory.decode("utf-8")
-        bpy.ops.wm.path_open(filepath=filepath)
+        filename=context.space_data.params.filename
+        dirpath=context.space_data.params.directory.decode("utf-8")
+        filepath = os.path.abspath(os.path.join(dirpath, filename))
+
+#        bpy.ops.wm.path_open(filepath=dirpath)
+        if filename:
+            subprocess.Popen(f'explorer /select, {filepath}')
+        else:
+            subprocess.Popen(f'explorer "{dirpath}"')
 
         return {'FINISHED'}
   
