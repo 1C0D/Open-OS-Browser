@@ -13,6 +13,7 @@ and it was so long to have to get back to OS Browser to do it...
 
 but the process can be used in addons too to edit quickly a file show the result filed selected (what blender don't do)...
 
-
+added a shortcut to open addon folders there
+![](addons.jpg)
   
 
