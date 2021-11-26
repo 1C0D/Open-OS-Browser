@@ -1,3 +1,22 @@
+
+# # reveal in explorer
+# def reveal_in_explorer(path) :
+    # #windows
+    # if platform.system() == "Windows":
+        # #os.startfile(path)
+        # #subprocess.Popen(['explorer', path])
+        # # subprocess.Popen(r'explorer /select,%s' % path)
+        # #subprocess.call("explorer %s" % path, shell=True)
+        # subprocess.Popen(r'explorer /select, %s' % path)
+    # #mac
+    # elif platform.system() == "Darwin":
+        # #subprocess.Popen(["open", path])
+        # subprocess.Popen(["open", "-a", "Finder", path])
+    # #linux
+    # else:
+        # subprocess.Popen(["xdg-open", os.path.dirname(path)])
+
+
 import bpy
 import os
 import subprocess
@@ -6,8 +25,8 @@ bl_info = {
     "name": "Open OS Browser",
     "description": "open OS browser from blender browser",
     "author": "1C0D",
-    "version": (1, 3, 0),
-    "blender": (2, 90, 0),
+    "version": (1, 4, 0),
+    "blender": (2, 93, 0),
     "location": "Browser>context_menu",
     "category": "Development",
 }
@@ -45,12 +64,42 @@ def draw(self, context):
     op1=layout.operator("open.os_browser",
                          text="Open file in OS", icon='FILE')
     op1.On = False
+    
+
+# add shortcut to open addons folder to Userpref paths 
+class OPEN_OT_folder(bpy.types.Operator):
+    bl_idname = "open.folder"
+    bl_label = "Open folder"
+    bl_options = {"REGISTER", "INTERNAL"}
+
+    fp : bpy.props.StringProperty()
+
+    def execute(self, context):
+
+        if not os.path.exists(self.fp):
+            print('Filepath not found', self.fp)
+            return {"CANCELLED"}
+
+        subprocess.Popen(fr'explorer "{self.fp}"')
+
+        return {'FINISHED'}     
+
+def draw1(self, context):
+    layout = self.layout
+    row = layout.row()
+    row.label(text='')
+    row.label(text='')
+    row.operator(OPEN_OT_folder.bl_idname, text='Users addons').fp = bpy.utils.user_resource('SCRIPTS', path = "addons")
+    row.operator(OPEN_OT_folder.bl_idname, text='Built-in addons').fp = os.path.join(bpy.utils.resource_path('LOCAL') , 'scripts', 'addons')
+
 
 addon_keymaps = []
 
 def register():
     bpy.utils.register_class(OPEN_OT_os_browser)
+    bpy.utils.register_class(OPEN_OT_folder)
     bpy.types.FILEBROWSER_MT_context_menu.append(draw)
+    bpy.types.USERPREF_PT_file_paths_data.prepend(draw1) 
     
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
@@ -75,5 +124,7 @@ def unregister():
     addon_keymaps.clear()
 
     bpy.utils.unregister_class(OPEN_OT_os_browser)
+    bpy.utils.unregister_class(OPEN_OT_folder)
     bpy.types.FILEBROWSER_MT_context_menu.remove(draw)
+    bpy.types.USERPREF_PT_file_paths_data.remove(draw1)    
 
